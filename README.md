@@ -1,4 +1,3 @@
-# Windowsefirecover
 How to Restore Deleted EFI Boot Partition in Windows 
    
 In this article we’ll show how to manually repair accidentally deleted Windows boot partition on UEFI system. Initially, the article described my experience with restoring the boot EFI partition on Windows 7, but the article is also relevant for modern Microsoft operating systems (from Windows 7 to Windows 10). This article often helped me after accidentally formatting or deleting the EFI partition on Windows 10. I’ll show you an easy way to manually rebuild the boot EFI and MSR partitions on Windows.
