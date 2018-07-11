@@ -35,19 +35,19 @@ Shift+F10 - command prompta
 
 Run the disk and partition management utility:
 
-Diskpart
+      Diskpart
 
 Display the list of hard disks in the system (in our example, there is only one disk, disk 0. The asterisk in the GPT column means that it uses the GUID partition table).
 
-list disk
+      list disk
 
 Select this disk:
 
-Select disk 0
+      Select disk 0
 
 Display the list of partitions on this disk:
 
-List partition
+      List partition
 
 In our example, only two partitions are left in the system:
 
@@ -63,41 +63,41 @@ Important! Please, be extremely attentive here and do not accidentally delete Wi
 
 Select the partition to remove:
 
-Select partition 1
+      Select partition 1
 
-And delete it
+      And delete it
 
-Delete partition override
+      Delete partition override
 
 Make sure that there is only Windows partition left:
 
-List partition
+      List partition
 
-delete msr partition
+      delete msr partition
 
 Now you can re-create EFI and MSR partitions manually. To do it, run these commands in diskpart context one by one.
 
 Select the disk:
 
-select disk 0
+      select disk 0
  
-create partition efi size=100
+      create partition efi size=100
 
 Make sure that the 100 MB partition (an asterisk in front of the Partition 1) is selected:
 
-list partition
-select partition 1
-format quick fs=fat32 label="System"
-assign letter=G
-create partition msr size=128
-list partition
-list vol
+      list partition
+      select partition 1
+      format quick fs=fat32 label="System"
+      assign letter=G
+      create partition msr size=128
+      list partition
+      list vol
 
 In our case, disk letter C: is already assigned to our Windows partition. Otherwise, assign the drive letter to it as follows:
 
-select vol 1
-assign letter=C
-exit
+      select vol 1
+      assign letter=C
+      exit
 
 recreate efi and msr partitions
 Repairing EFI bootloader and Windows BCD
@@ -105,41 +105,41 @@ Repairing EFI bootloader and Windows BCD
 After you have created a minimal disk partition structure for the UEFI system, you can proceed to copy the EFI boot files to the disk and create a bootloader configuration file (BCD).
 
 Copy the EFI environment files from the directory of the installed Windows 10:
-
-mkdir G:\EFI\Microsoft\Boot
+   
+      mkdir G:\EFI\Microsoft\Boot
  
-xcopy /s C:\Windows\Boot\EFI\*.* G:\EFI\Microsoft\Boot
+      xcopy /s C:\Windows\Boot\EFI\*.* G:\EFI\Microsoft\Boot
 
 copy efi files
 
 Let’s re-create the Windows 10 / 7 bootloader configuration:
 
-g:
-cd EFI\Microsoft\Boot
-bcdedit /createstore BCD
-bcdedit /store BCD  /create {bootmgr} /d “Windows Boot Manager”
-bcdedit /store BCD /create /d “My Windows 10” /application osloader
+      g:
+      cd EFI\Microsoft\Boot
+      bcdedit /createstore BCD
+      bcdedit /store BCD  /create {bootmgr} /d “Windows Boot Manager”
+      bcdedit /store BCD /create /d “My Windows 10” /application osloader
 
 You can replace the caption “My Windows 10” for any other.
 Tip. If only EFI files were damaged on the EFI partition and the partition itself was not deleted, you can skip the process of recreating partitions using diskpart. Although in most cases it is enough to repair the EFI bootloader in Windows 10 / 8.1. You can manually recreate the BCD on an MBR+BIOS system using this article.
 
 The command returns the GUID of the created record, in the next command put this GUID instead of {your_guid}.
 
-create bcd store
+ create bcd store
 
-bcdedit /store BCD /set {bootmgr} default {your_guid}
-bcdedit /store BCD /set {bootmgr} path \EFI\Microsoft\Boot\bootmgfw.efi
-bcdedit /store BCD /set {bootmgr} displayorder {default}
+      bcdedit /store BCD /set {bootmgr} default {your_guid}
+      bcdedit /store BCD /set {bootmgr} path \EFI\Microsoft\Boot\bootmgfw.efi
+      bcdedit /store BCD /set {bootmgr} displayorder {default}
 
 bcdedit bootmgr
 
 The following commands are run in the {default} context:
 
-bcdedit /store BCD /set {default} device partition=c:
-bcdedit /store BCD /set {default} osdevice partition=c:
-bcdedit /store BCD /set {default} path \Windows\System32\winload.efi
-bcdedit /store BCD /set {default} systemroot \Windows
-exit
+      bcdedit /store BCD /set {default} device partition=c:
+      bcdedit /store BCD /set {default} osdevice partition=c:
+      bcdedit /store BCD /set {default} path \Windows\System32\winload.efi
+      bcdedit /store BCD /set {default} systemroot \Windows
+      exit
 
 bcdedit winload efi
 
